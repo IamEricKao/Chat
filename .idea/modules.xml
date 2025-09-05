@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Chat.iml" filepath="$PROJECT_DIR$/.idea/Chat.iml" />
       <module fileurl="file://$PROJECT_DIR$/Chat-Client/Chat-Client.iml" filepath="$PROJECT_DIR$/Chat-Client/Chat-Client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Chat-Server/Chat-Server.iml" filepath="$PROJECT_DIR$/Chat-Server/Chat-Server.iml" />
     </modules>
   </component>
 </project>
