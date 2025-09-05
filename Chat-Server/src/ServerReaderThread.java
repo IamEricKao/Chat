@@ -1,7 +1,8 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 public class ServerReaderThread extends Thread {
@@ -16,7 +17,7 @@ public class ServerReaderThread extends Thread {
         try{
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             while(true){
-                // 先從socekt中接收客戶端傳來的訊息類型的編號
+                // 先從socket中接收客戶端傳來的訊息類型的編號
                 var type = dis.readInt();
                 switch(type){
                     case 1:
@@ -28,16 +29,43 @@ public class ServerReaderThread extends Thread {
                         break;
                     case 2:
                         // 客戶端發來公開聊天訊息後，接著取得聊天內容，再轉發給所有在線的使用者
+                        var message = dis.readUTF();
+                        // 轉發公開聊天訊息給所有在線使用者
+                        SendMessageToAll(message);
                         break;
-                    default:
                 }
             }
-
         }catch (Exception e){
             System.out.println("使用者下線: " + socket.getInetAddress().getHostAddress());
-            // 使用者下線後，將該使用者從在線使用者列表中移除，並更新所有在線使用者的列表
+            // 使用者下線後，將該使用者從在線使用者列表中移除，並更新所有在線使用者列表
             Server.onLineSockets.remove(socket);
             UpdateClientOnLineUserList();
+        }
+    }
+
+    /// 轉發公開聊天訊息給所有在線使用者
+    private void SendMessageToAll(String message) {
+        var name = Server.onLineSockets.get(socket);
+        var localDateTime = LocalDateTime.now();
+        var formattedTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss EEE").format(localDateTime);
+        var fullMessage = new StringBuilder().append(name)
+                                             .append(" ")
+                                             .append(formattedTime)
+                                             .append("\r\n")
+                                             .append(message)
+                                             .append("\r\n")
+                                             .toString();
+        // 轉發給所有在線的使用者
+        for(var socket : Server.onLineSockets.keySet())
+        {
+            try{
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeInt(2); // 代表公開聊天訊息的訊息類型
+                dos.writeUTF(fullMessage);
+                dos.flush();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

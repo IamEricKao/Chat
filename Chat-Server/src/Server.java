@@ -3,7 +3,6 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Server {
     // 儲存所有登入的使用者管道,以便後續轉發訊息給所有人
     public static final Map<Socket, String> onLineSockets = new HashMap<>();
