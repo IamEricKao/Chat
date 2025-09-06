@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 
 public class ClientChatFrame extends JFrame {
 
@@ -12,6 +13,7 @@ public class ClientChatFrame extends JFrame {
     private JButton sendButton;
     private JList<String> userList;
     private DefaultListModel<String> userListModel;
+    private Socket socket;
 
     public ClientChatFrame() {
         setTitle("聊天室");
@@ -19,6 +21,13 @@ public class ClientChatFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
+        this.setVisible(true);
+    }
+
+    public ClientChatFrame(String nickname, Socket socket) {
+        this();
+        this.setTitle(nickname);
+        this.socket = socket;
     }
 
     private void initComponents() {
@@ -79,8 +88,6 @@ public class ClientChatFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ClientChatFrame().setVisible(true);
-        });
+        SwingUtilities.invokeLater(ClientChatFrame::new);
     }
 }

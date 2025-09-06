@@ -4,12 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 public class ChatEntryFrame extends JFrame {
 
     private JTextField nicknameField;
     private JButton loginButton;
     private JButton cancelButton;
+    private Socket socket;
 
     public ChatEntryFrame() {
         setTitle("聊天室登入");
@@ -18,6 +22,7 @@ public class ChatEntryFrame extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         initComponents();
+        this.setVisible(true);
     }
 
     private void initComponents() {
@@ -55,7 +60,14 @@ public class ChatEntryFrame extends JFrame {
                     JOptionPane.showMessageDialog(ChatEntryFrame.this, "請輸入暱稱！", "錯誤", JOptionPane.ERROR_MESSAGE);
                 } else {
                     // 可在此處進行登入邏輯
-                    JOptionPane.showMessageDialog(ChatEntryFrame.this, "歡迎 " + nickname + " 進入聊天室！");
+                    try {
+                        Login(nickname);
+                        dispose();
+                        // 開啟聊天視窗
+                        new ClientChatFrame(nickname, socket);
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });
@@ -69,9 +81,17 @@ public class ChatEntryFrame extends JFrame {
         setContentPane(panel);
     }
 
+    /// 登入方法
+    private void Login(String nickname) throws Exception {
+        // 連接伺服器
+        socket = new Socket(Constant.SERVER_IP, Constant.SERVER_PORT);
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        dos.writeInt(1); // 訊息類型 : 1 = 登入
+        dos.writeUTF(nickname); // 傳送暱稱
+        dos.flush();
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new ChatEntryFrame().setVisible(true);
-        });
+        SwingUtilities.invokeLater(ChatEntryFrame::new);
     }
 }

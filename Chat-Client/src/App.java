@@ -2,6 +2,6 @@ import UI.ChatEntryFrame;
 
 public class App {
     public static void main(String[] args) {
-        new ChatEntryFrame().setVisible(true);
+        new ChatEntryFrame();
     }
 }
