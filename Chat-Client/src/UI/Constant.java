@@ -8,7 +8,7 @@ public class Constant {
     public static final int SERVER_PORT = 6666;
     static {
         try {
-            SERVER_IP = String.valueOf(InetAddress.getLocalHost());
+            SERVER_IP = String.valueOf(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }

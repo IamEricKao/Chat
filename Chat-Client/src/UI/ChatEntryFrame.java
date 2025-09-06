@@ -66,7 +66,7 @@ public class ChatEntryFrame extends JFrame {
                         // 開啟聊天視窗
                         new ClientChatFrame(nickname, socket);
                     } catch (Exception ex) {
-                        throw new RuntimeException(ex);
+                        ex.printStackTrace();
                     }
                 }
             }

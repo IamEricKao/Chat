@@ -13,7 +13,8 @@ public class Server {
             while (true) {
                 System.out.println("等待客戶端連接...");
                 var socket = serverSocket.accept();
-                System.out.println("客戶端連接進來了");
+                System.out.println("客戶端:"+ socket.getInetAddress().getHostAddress() + " 連接進來了");
+                // 為每個連接進來的客戶端建立一個獨立的執行緒來處理訊息
                 new ServerReaderThread(socket).start();
             }
         } catch (Exception e) {

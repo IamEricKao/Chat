@@ -12,7 +12,7 @@ public class ClientChatFrame extends JFrame {
     private JTextField inputField;
     private JButton sendButton;
     private JList<String> userList;
-    private DefaultListModel<String> userListModel;
+
     private Socket socket;
 
     public ClientChatFrame() {
@@ -26,18 +26,16 @@ public class ClientChatFrame extends JFrame {
 
     public ClientChatFrame(String nickname, Socket socket) {
         this();
-        this.setTitle(nickname);
+        this.setTitle(nickname + " 的聊天視窗");
         this.socket = socket;
+        // 連接伺服器後，啟動讀取訊息的執行緒
+        new ClientReaderThread(socket, this).start();
     }
 
     private void initComponents() {
         // 左側：線上使用者列表
-        userListModel = new DefaultListModel<>();
-        userList = new JList<>(userListModel);
+        userList = new JList<>();
         userList.setBorder(BorderFactory.createTitledBorder("線上使用者"));
-        userListModel.addElement("小明");
-        userListModel.addElement("小華");
-        userListModel.addElement("小美");
 
         JScrollPane userListScroll = new JScrollPane(userList);
         userListScroll.setPreferredSize(new Dimension(120, 0));
@@ -89,5 +87,9 @@ public class ClientChatFrame extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ClientChatFrame::new);
+    }
+
+    public void UpdateOnLineUserList(String[] users) {
+        userList.setListData(users);
     }
 }
