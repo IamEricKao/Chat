@@ -4,15 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ClientChatFrame extends JFrame {
 
     private JTextArea chatArea;
-    private JTextField inputField;
+    private JTextArea inputArea;
     private JButton sendButton;
     private JList<String> userList;
-
     private Socket socket;
 
     public ClientChatFrame() {
@@ -47,23 +48,27 @@ public class ClientChatFrame extends JFrame {
         JScrollPane chatScroll = new JScrollPane(chatArea);
 
         // 下方：訊息輸入區
-        inputField = new JTextField();
+        inputArea = new JTextArea(3, 20);
+        inputArea.setLineWrap(true);
+        inputArea.setWrapStyleWord(true);
+        inputArea.setCaretPosition(0); // 游標在第一列
+        JScrollPane inputScroll = new JScrollPane(inputArea);
+
         sendButton = new JButton("送出");
         sendButton.setPreferredSize(new Dimension(70, 60));
-        sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
+        sendButton.addActionListener(e -> sendMessageToServer() );
 
-        inputField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
+        inputArea.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER && !evt.isShiftDown()) {
+                    evt.consume(); // 防止換行
+                    sendMessageToServer();
+                }
             }
         });
 
         JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
-        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(inputScroll, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
 
         // 主要佈局
@@ -77,11 +82,18 @@ public class ClientChatFrame extends JFrame {
         getContentPane().add(inputPanel, BorderLayout.SOUTH);
     }
 
-    private void sendMessage() {
-        String text = inputField.getText().trim();
+    private void sendMessageToServer() {
+        String text = inputArea.getText().trim();
         if (!text.isEmpty()) {
-            chatArea.append("我: " + text + "\n");
-            inputField.setText("");
+            inputArea.setText("");
+            // 連線伺服器並發送消息
+            try {
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeInt(2); // 訊息類型 : 2 = 公開聊天訊息
+                dos.writeUTF(text);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -91,5 +103,12 @@ public class ClientChatFrame extends JFrame {
 
     public void UpdateOnLineUserList(String[] users) {
         userList.setListData(users);
+    }
+
+    public void UpdateChatArea(String msg) {
+        // 將新訊息加入聊天區域
+        chatArea.append(msg + "\n");
+        // 自動捲動到最底部
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
 }

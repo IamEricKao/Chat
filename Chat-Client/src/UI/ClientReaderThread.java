@@ -26,13 +26,18 @@ public class ClientReaderThread extends Thread {
                         UpdateChatFrameOnLineUserList(dis);
                         break;
                     case 2:
-
+                        GetMessageToChatFrame(dis);
                         break;
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void GetMessageToChatFrame(DataInputStream dis) throws Exception {
+        var msg = dis.readUTF();
+        chatFrame.UpdateChatArea(msg);
     }
 
     private void UpdateChatFrameOnLineUserList(DataInputStream dis) throws Exception {
